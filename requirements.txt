@@ -4,5 +4,4 @@ requests
 bs4 
 beautifulsoup4
 lxml 
-re
 base64
