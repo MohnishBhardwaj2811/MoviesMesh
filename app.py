@@ -228,7 +228,7 @@ html_content1 = """
                 <ul>
                     {% for movie in movies %}
                     <li>
-                        <a href="#" class="movie-link" 
+                        <a href="{{ movie.magnet_link }}" class="movie-link" 
                            onclick="playMovie('{{ movie.magnet_link }}')">
                             {{ movie.movie_name }}
                         </a>
