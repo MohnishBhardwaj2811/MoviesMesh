@@ -228,7 +228,7 @@ html_content1 = """
                 <ul>
                     {% for movie in movies %}
                     <li>
-                        <a href="{{ movie.magnet_link }}" class="movie-link" 
+                        <a href="{{movie.magnet_link}}" class="movie-link" 
                            onclick="playMovie('{{ movie.magnet_link }}')">
                             {{ movie.movie_name }}
                         </a>
@@ -379,6 +379,11 @@ def index():
     if query != "":
         search_url =" https://tpirbay.xyz/search/" + query +"/1/99/200"
         movies_data = extract_search(search_url)
+        if movies_data == []:
+            movies_data = extract_search(search_url)
+        else:
+            movies_data = movies_data
+            
         return render_template_string(html_content1, query=query, movies=movies_data)
 
     # HTML content for both index (search form) and result (query display)
@@ -413,7 +418,7 @@ def API(user_id,Data_Call):
 
 
 #if __name__ == "__main__":
-#    app.run(debug=True)
+ #   app.run(debug=True)
 
 
 
