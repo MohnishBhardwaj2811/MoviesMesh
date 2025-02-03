@@ -19,45 +19,54 @@ def Convert_magnet_torrent(magnet_url):
     base64_magnet = base64.b64encode(magnet_url.encode()).decode()
     utorrent_url = f"https://lite.utorrent.com/player?m={base64_magnet}"  #f"/player/{base64_magnet}"
     return utorrent_url
-    
+ 
 def extract_search(url):
 
-    html_content = requests.get(url).text
-    soup = BeautifulSoup(html_content, 'html.parser')
     results = []# Find all table rows containing torrent entries
-    for row in soup.select('td.vertTh + td'):
-        # Extract movie name
-        name_tag = row.select_one('a.detLink')
-        movie_name = name_tag.text.strip() if name_tag else None
 
-        # Extract magnet link
-        magnet_tag = row.select_one('a[href^="magnet:?"]')
-        magnet_link = magnet_tag['href'] if magnet_tag else None
+    while True:
 
-        # Extract upload date and size
-        det_desc = row.select_one('font.detDesc')
-        if det_desc:
-            text = det_desc.get_text(strip=True)
-            
-            # Extract uploaded date
-            uploaded_match = re.search(r'Uploaded (.*?),', text)
-            uploaded = uploaded_match.group(1).replace('\xa0', ' ') if uploaded_match else None
-            
-            # Extract size
-            size_match = re.search(r'Size (.*?),', text)
-            size = size_match.group(1).replace('\xa0', ' ') if size_match else None
+        html_content = requests.get(url).text
+        soup = BeautifulSoup(html_content, 'html.parser')
+        for row in soup.select('td.vertTh + td'):
+            # Extract movie name
+            name_tag = row.select_one('a.detLink')
+            movie_name = name_tag.text.strip() if name_tag else None
+
+            # Extract magnet link
+            magnet_tag = row.select_one('a[href^="magnet:?"]')
+            magnet_link = magnet_tag['href'] if magnet_tag else None
+
+            # Extract upload date and size
+            det_desc = row.select_one('font.detDesc')
+            if det_desc:
+                text = det_desc.get_text(strip=True)
+                
+                # Extract uploaded date
+                uploaded_match = re.search(r'Uploaded (.*?),', text)
+                uploaded = uploaded_match.group(1).replace('\xa0', ' ') if uploaded_match else None
+                
+                # Extract size
+                size_match = re.search(r'Size (.*?),', text)
+                size = size_match.group(1).replace('\xa0', ' ') if size_match else None
+            else:
+                uploaded = size = None
+
+            results.append({
+                'movie_name': movie_name,
+                'magnet_link': Convert_magnet_torrent(magnet_link),
+                'uploaded': uploaded,
+                'size': size
+            })
+
+
+        if results == []:
+            print("trying!")
+            continue
         else:
-            uploaded = size = None
-
-        results.append({
-            'movie_name': movie_name,
-            'magnet_link': Convert_magnet_torrent(magnet_link),
-            'uploaded': uploaded,
-            'size': size
-        })
-    
+            break
+        
     return results
-
 
 ######33######################################################################################################################################################################################
 ######33######################################################################################################################################################################################
@@ -383,7 +392,7 @@ def index():
             movies_data = extract_search(search_url)
         else:
             movies_data = movies_data
-            
+
         return render_template_string(html_content1, query=query, movies=movies_data)
 
     # HTML content for both index (search form) and result (query display)
@@ -418,7 +427,7 @@ def API(user_id,Data_Call):
 
 
 #if __name__ == "__main__":
- #   app.run(debug=True)
+#    app.run(debug=True)
 
 
 
